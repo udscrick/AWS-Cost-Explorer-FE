@@ -1,0 +1,5 @@
+{
+  "name": "Cost Explorer Frontend",
+  "description": "An intelligent dashboard that analyzes cloud spending, detects cost anomalies, and provides optimization recommendations using Gemini.",
+  "requestFramePermissions": []
+}
