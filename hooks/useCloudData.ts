@@ -77,7 +77,7 @@ export const useCloudData = () => {
     setRecommendations([]);
     
     try {
-      const { anomalyDetails, recommendations } = await geminiService.getAnomalyDetails(anomaly, data, provider);
+      const { anomalyDetails, recommendations } = await geminiService.getAnomalyDetails(anomaly, data, provider, startDate, endDate);
       setAnomalyDetails(anomalyDetails);
       setRecommendations(recommendations);
     } catch (error) {

@@ -70192,6 +70192,7 @@ const generateMockAnalysisData = (startDate: string, endDate: string, granularit
 // --- API FETCHING ---
 
 export const fetchAnalysisData = async (provider: CloudProvider, startDate: string, endDate: string, granularity: ChartGranularity): Promise<AnalysisData> => {
+    console.log("Provider: ",provider);
     if (provider === 'mock') {
         // Simulate network delay for a more realistic demo
         await new Promise(resolve => setTimeout(resolve, 600));
@@ -70199,20 +70200,17 @@ export const fetchAnalysisData = async (provider: CloudProvider, startDate: stri
     }
     
     try {
-        const requestBody = { provider, startDate, endDate, granularity };
-
-        const response = await fetch('/api/analysis', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
+        // Use local Python API for non-mock providers
+        const response = await fetch(`https://cloud-cost-explorer.onrender.com/analysis?startDate=${startDate}&endDate=${endDate}`, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Origin': 'https://cloud-cost-explorer.onrender.com/analysis'
+            },
         });
 
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Failed to fetch analysis from backend.' }));
-            if (response.status === 401 || response.status === 403) {
-                 throw new Error('Backend authentication failed. Please check server-side AWS credentials.');
-            }
-            throw new Error(error.message);
+            throw new Error(`API returned ${response.status}`);
         }
 
         return await response.json();

@@ -68537,13 +68537,31 @@ const generateMockCopilotResponse = (question: string): string => {
 }
 
 
-export const getAnomalyDetails = async (anomaly: Anomaly, context: CostData[], provider: CloudProvider): Promise<{ anomalyDetails: string, recommendations: Recommendation[] }> => {
+export const getAnomalyDetails = async (anomaly: Anomaly, context: CostData[], provider: CloudProvider, startDate: string, endDate: string): Promise<{ anomalyDetails: string, recommendations: Recommendation[] }> => {
     if (provider === 'mock') {
         await new Promise(resolve => setTimeout(resolve, 800)); // Simulate AI thinking
         return Promise.resolve(generateMockAnomalyDetails());
     }
     try {
-        return await apiRequest('/api/anomaly-details', { anomaly, context });
+        // Use local Python API for non-mock providers
+        const response = await fetch('https://cloud-cost-explorer.onrender.com/analysis?startDate=' + startDate + '&endDate=' + endDate, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Origin': 'https://cloud-cost-explorer.onrender.com/chat'
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Local Python API returned ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        return {
+            anomalyDetails: data.anomalyDetails || "Anomaly detected in cost data",
+            recommendations: data.recommendations || []
+        };
     } catch (error) {
         console.error("Error getting anomaly details:", error);
         throw new Error("Failed to generate details for the anomaly.");
@@ -68556,10 +68574,367 @@ export const askCopilot = async (question: string, history: { role: string, part
          return Promise.resolve(generateMockCopilotResponse(question));
     }
     try {
-        const response = await apiRequest('/api/copilot', { question, history, context });
-        return response.text;
+        const response = await apiRequest('https://cloud-cost-explorer.onrender.com/chat', { question });
+        return response.text || response.response || response.message || response.answer || 'No response received';
     } catch (error) {
         console.error("Error asking copilot:", error);
         throw new Error("The FinOps Copilot is currently unavailable. Please try again later.");
     }
 };
+
+curl 'http://localhost:5174/' \
+  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Cache-Control: max-age=0' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"3c4-3mAwLInSK2jtSBN3PcYVgchI1b0"' \
+  -H 'Referer: http://localhost:5174/' \
+  -H 'Sec-Fetch-Dest: document' \
+  -H 'Sec-Fetch-Mode: navigate' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'Upgrade-Insecure-Requests: 1' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/@vite/client' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"7e60-QKx8R8xywtHY98qTwWb+BRy0Mn0"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'https://cdn.tailwindcss.com/3.4.17' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer;' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/index.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"4f4-CQQU5OhLeM5CE7qWz3q4zLD7sCw"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/webfonts/fa-brands-400.woff2' -H 'Referer;' ;
+curl 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/webfonts/fa-solid-900.woff2' -H 'Referer;' ;
+curl 'http://localhost:5174/node_modules/vite/dist/client/env.mjs' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"2c3-b9RoLBc2r6Cu5qi6i63IOv71qxk"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/@vite/client' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'ws://localhost:5174/?token=h61K_WLOMBQ5' \
+  -H 'Upgrade: websocket' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Pragma: no-cache' \
+  -H 'Connection: Upgrade' \
+  -H 'Sec-WebSocket-Key: q4ZmqlMVDK8ITowR/yavFw==' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'Sec-WebSocket-Version: 13' \
+  -H 'Sec-WebSocket-Protocol: vite-hmr' \
+  -H 'Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/index.tsx' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/react.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/index.tsx' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/index.tsx' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/App.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"73c-FnwdIOEN0ILgAvTHKt34/YK092M"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/index.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/chunk-HV75L2UC.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=30240fdd' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/chunk-F76XNXOM.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=30240fdd' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'http://localhost:5174/components/Header.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"5b1-h2+XCe6UM7WQ1aZLf8+9b5he03o"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/App.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/DataProvider.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"e63-8e1DbhblKySe26R42zb8IrKwbcY"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/App.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"4d2e-AC7xfqC8IPo0uKMAhxVXzwbLhQY"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/App.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/hooks/useCloudData.ts' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"1a4d-Mk2Yg/RGFNaJoSg8mhBNoErU6ks"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/App.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/icons.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"105b-1wnziV9Aa+Q39Mh5lTTsVGiKg34"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/DataProvider.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/CostChart.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"2f79-iQ1xmf9TIbdx21uXeIusbB9xX0M"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/AnomalyCard.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"1b49-VGu8FBgs3s4gpKnQyTF9uODXn9M"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/RecommendationCard.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"87c-T1Yiuka0gl6bDHkJEjQy3INsQ0c"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/Chatbot.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"1ec9-KieyLx0mJh6Yw48X8uLCYQWi6zs"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/components/LoadingSpinner.tsx' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"6da-hs8y5kFIiee3jB/sqGtJ3YC5sTk"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/components/Dashboard.tsx' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/services/geminiService.ts' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"1afcea-uhfxXcp6bQI3qhevdwPh09gCFlc"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/hooks/useCloudData.ts' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/services/awsService.ts' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'If-None-Match: W/"1b9007-4/Y3nDgMgpLvPlnCWqfLM3FNEes"' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'Referer: http://localhost:5174/hooks/useCloudData.ts' \
+  -H 'Sec-Fetch-Dest: script' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' ;
+curl 'http://localhost:5174/node_modules/.vite/deps/recharts.js?v=30240fdd' \
+  -H 'Origin: http://localhost:5174' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/components/CostChart.tsx' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'https://cloud-cost-explorer.onrender.com/analysis?startDate=2025-06-07&endDate=2025-09-04' \
+  -X 'OPTIONS' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'access-control-request-headers: content-type' \
+  -H 'access-control-request-method: GET' \
+  -H 'origin: http://localhost:5174' \
+  -H 'priority: u=1, i' \
+  -H 'referer: http://localhost:5174/' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: cross-site' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' ;
+curl 'https://cloud-cost-explorer.onrender.com/analysis?startDate=2025-06-07&endDate=2025-09-04' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: http://localhost:5174/' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'Content-Type: application/json' \
+  -H 'sec-ch-ua-mobile: ?0' ;
+curl 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJXaW5kb3dUZXh0IiBkPSJNMjAgM2gtMVYxaC0ydjJIN1YxSDV2Mkg0Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6bTAgMThINFY4aDE2djEzeiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=' -H 'Referer;' ;
+curl 'https://cloud-cost-explorer.onrender.com/analysis?startDate=2025-06-07&endDate=2025-09-04' \
+  -X 'OPTIONS' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'access-control-request-headers: content-type' \
+  -H 'access-control-request-method: GET' \
+  -H 'origin: http://localhost:5174' \
+  -H 'priority: u=1, i' \
+  -H 'referer: http://localhost:5174/' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: cross-site' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' ;
+curl 'https://cloud-cost-explorer.onrender.com/analysis?startDate=2025-06-07&endDate=2025-09-04' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'content-type: application/json' \
+  -H 'origin: http://localhost:5174' \
+  -H 'priority: u=1, i' \
+  -H 'referer: http://localhost:5174/' \
+  -H 'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: cross-site' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
