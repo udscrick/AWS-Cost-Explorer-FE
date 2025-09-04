@@ -35,7 +35,7 @@ export const useCloudData = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [chatHistoryForApi, setChatHistoryForApi] = useState<{ role: string, parts: { text: string }[] }[]>([]);
   const [chartView, setChartView] = useState<ChartView>('line');
-  const [chartGranularity, setChartGranularity] = useState<ChartGranularity>('day');
+  const [chartGranularity, setChartGranularity] = useState<ChartGranularity>('month');
   const [isProcessing, setIsProcessing] = useState<Record<string, boolean>>({
     anomalies: false,
     details: false,
@@ -63,7 +63,7 @@ export const useCloudData = () => {
     setIsProcessing({ anomalies: false, details: false, chat: false });
   };
 
-  const handleSelectAnomaly = useCallback(async (anomaly: Anomaly | null, data: CostData[], provider: CloudProvider) => {
+  const handleSelectAnomaly = useCallback(async (anomaly: Anomaly | null, data: CostData[], provider: CloudProvider, granularity: ChartGranularity) => {
     if (!anomaly) {
       setSelectedAnomaly(null);
       setAnomalyDetails(null);
@@ -77,7 +77,7 @@ export const useCloudData = () => {
     setRecommendations([]);
     
     try {
-      const { anomalyDetails, recommendations } = await geminiService.getAnomalyDetails(anomaly, data, provider, startDate, endDate);
+      const { anomalyDetails, recommendations } = await geminiService.getAnomalyDetails(anomaly, data, provider, startDate, endDate, granularity);
       setAnomalyDetails(anomalyDetails);
       setRecommendations(recommendations);
     } catch (error) {
@@ -104,7 +104,7 @@ export const useCloudData = () => {
         setAnomalies(anomalies);
 
         if (anomalies.length > 0) {
-          handleSelectAnomaly(anomalies[0], detailedCostData, provider);
+          handleSelectAnomaly(anomalies[0], detailedCostData, provider, granularity);
         }
 
     } catch (error) {
@@ -182,7 +182,7 @@ export const useCloudData = () => {
     handleSelectProvider,
     handleSelectAnomaly: (anomaly: Anomaly | null) => {
         if(cloudProvider) {
-            handleSelectAnomaly(anomaly, detailedCostData, cloudProvider);
+            handleSelectAnomaly(anomaly, detailedCostData, cloudProvider, chartGranularity);
         }
     },
     handleSendMessage,

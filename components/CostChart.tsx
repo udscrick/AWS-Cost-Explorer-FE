@@ -23,12 +23,12 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
         <p className="label text-gray-200 font-semibold">{`Date: ${label}`}</p>
         {payload.map((pld: any, index: number) => (
           <div key={index} style={{ color: pld.color || pld.stroke }}>
-            {`${pld.name}: $${pld.value}`}
+            {`${pld.name}: $${parseFloat(pld.value.toFixed(2))}`}
           </div>
         ))}
         {payload.length > 1 && (
             <div className="pt-2 mt-2 border-t border-gray-600 text-white font-bold">
-                {`Total: $${Math.round(payload.reduce((sum, p) => sum + p.value, 0) * 100) / 100}`}
+                {`Total: $${parseFloat(payload.reduce((sum, p) => sum + p.value, 0).toFixed(2))}`}
             </div>
         )}
       </div>
@@ -71,7 +71,7 @@ const CostChart: React.FC<CostChartProps> = ({ view, granularity, data, detailed
 
     const services = [...new Set(detailedData.map(d => d.service))].sort();
     const colors = services.reduce((acc, service, i) => {
-        acc[service] = COLORS[i % COLORS.length];
+        acc[service as string] = COLORS[i % COLORS.length];
         return acc;
     }, {} as Record<string, string>);
 
@@ -83,7 +83,7 @@ const CostChart: React.FC<CostChartProps> = ({ view, granularity, data, detailed
       return acc;
     }, {} as Record<string, any>);
 
-    const chartData = Object.values(dataByDate);
+    const chartData = Object.values(dataByDate) as Array<{ date: string; [key: string]: any }>;
     chartData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return { stackedBarData: chartData, serviceKeys: services, serviceColors: colors };

@@ -1,4 +1,4 @@
-import type { Anomaly, CostData, Recommendation, CloudProvider } from '../types';
+import type { Anomaly, CostData, Recommendation, CloudProvider, ChartGranularity } from '../types';
 
 const apiRequest = async (endpoint: string, body: object) => {
     try {
@@ -68537,18 +68537,18 @@ const generateMockCopilotResponse = (question: string): string => {
 }
 
 
-export const getAnomalyDetails = async (anomaly: Anomaly, context: CostData[], provider: CloudProvider, startDate: string, endDate: string): Promise<{ anomalyDetails: string, recommendations: Recommendation[] }> => {
+export const getAnomalyDetails = async (anomaly: Anomaly, context: CostData[], provider: CloudProvider, startDate: string, endDate: string, granularity: ChartGranularity): Promise<{ anomalyDetails: string, recommendations: Recommendation[] }> => {
     if (provider === 'mock') {
         await new Promise(resolve => setTimeout(resolve, 800)); // Simulate AI thinking
         return Promise.resolve(generateMockAnomalyDetails());
     }
     try {
         // Use local Python API for non-mock providers
-        const response = await fetch('https://cloud-cost-explorer.onrender.com/analysis?startDate=' + startDate + '&endDate=' + endDate, {
+        const response = await fetch('https://cloud-cost-explorer.onrender.com/analysis?startDate=' + startDate + '&endDate=' + endDate + '&granularity=' + granularity, {
             method: 'GET',
             headers: { 
                 'Content-Type': 'application/json',
-                'Origin': 'https://cloud-cost-explorer.onrender.com/chat'
+                'Origin': 'https://cloud-cost-explorer.onrender.com'
             },
         });
 

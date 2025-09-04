@@ -23,9 +23,6 @@ const AnomalyCard: React.FC<AnomalyCardProps> = ({ anomaly, anomalyDetails, isLo
         </div>
         <div>
           <h3 className="text-lg font-bold text-white">Cost Anomaly Detected</h3>
-          <p className="text-sm text-gray-400">
-            On <span className="font-semibold text-amber-400">{anomaly.date}</span>, costs were <span className="font-semibold text-amber-400">${anomaly.cost}</span>, exceeding the AI forecast of <span className="font-semibold text-sky-400">${anomaly.expectedCost}</span>.
-          </p>
           {deviationPercent > 0 && (
             <p className="text-sm text-gray-400 mt-1">
                 This represents a <span className="font-semibold text-rose-400">{deviationPercent}% increase</span> over the expected cost.
